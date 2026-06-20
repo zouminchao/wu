@@ -92,7 +92,7 @@ textarea:focus,input:focus{outline:none;border-color:#534AB7}
 <div class="wrap">
 <div class="topbar">
   <div>
-    <div class="famname" id="fnLbl">我的心流语录</div>
+    <div class="famname" id="fnLbl">心流语录</div>
     <div class="avrow" id="avRow"></div>
   </div>
   <div style="display:flex;gap:7px;flex-wrap:wrap">
@@ -149,7 +149,7 @@ textarea:focus,input:focus{outline:none;border-color:#534AB7}
 
 <div id="pbook" class="pnl">
   <div class="bookhdr">
-    <div class="booktit" id="bookTit">我们的心流语录</div>
+    <div class="booktit" id="bookTit">心流语录</div>
     <div class="booksub" id="bookSub"></div>
   </div>
   <div id="bookBody" style="font-family:Georgia,'Noto Serif SC',serif;line-height:2;font-size:15px"></div>
@@ -224,7 +224,7 @@ textarea:focus,input:focus{outline:none;border-color:#534AB7}
   <div class="sbox">
     <div class="stit">名称</div>
     <div style="display:flex;gap:7px">
-      <input type="text" id="fnInput" placeholder="例：我们的心流语录" style="flex:1">
+      <input type="text" id="fnInput" placeholder="例：心流语录" style="flex:1">
       <button class="btn" onclick="saveFN()">✓ 保存</button>
     </div>
   </div>
@@ -264,7 +264,7 @@ const CL={
   pink:{bg:'#FBEAF0',tx:'#72243E',ib:'#D4537E',it:'#ffffff'}
 };
 const TABS=['home','all','tl','book','add','settings'];
-let Q=[],M=[],cfg={familyName:'我们家的心流语录'},cur=null,fi=0,filt='all',liked=new Set();
+let Q=[],M=[],cfg={familyName:'心流语录'},cur=null,fi=0,filt='all',liked=new Set();
 
 // ─── 云端持久化配置 ────────────────────────────────────────────
 // 填入你的 JSONBin.io 凭证后，数据自动云端共享；留空则降级为本地存储
@@ -277,7 +277,7 @@ function saveLocal(data){
   try{localStorage.setItem('fq',JSON.stringify(data.Q));localStorage.setItem('fc',JSON.stringify({M:data.M,cfg:data.cfg}));localStorage.setItem('fl',JSON.stringify([...data.liked||[]]));}catch(e){}
 }
 function loadLocal(){
-  var data={Q:[],M:[],cfg:{familyName:'我们家的心流语录'},liked:[]};
+  var data={Q:[],M:[],cfg:{familyName:'心流语录'},liked:[]};
   try{const d=localStorage.getItem('fq');if(d)data.Q=JSON.parse(d);}catch(e){}
   try{const d=localStorage.getItem('fc');if(d){const p=JSON.parse(d);data.M=p.M||[];data.cfg=p.cfg||data.cfg;}}catch(e){}
   try{const d=localStorage.getItem('fl');if(d)data.liked=JSON.parse(d);}catch(e){}
@@ -475,8 +475,8 @@ function wechatFeat(){
   var h=new Date().getHours();
   var src=q.src?'\n—— '+q.src:'';
   var txt=h<12
-    ?'🌅 早安｜家庭心流金句\n\n「'+q.text+'」'+src+'\n\n—— '+mn(q.mid)+' 分享'
-    :'🌙 晚安｜家庭心流金句\n\n「'+q.text+'」'+src+'\n\n—— '+mn(q.mid)+' 分享';
+    ?'🌅 早安｜家庭心流语录\n\n「'+q.text+'」'+src+'\n\n—— '+mn(q.mid)+' 分享'
+    :'🌙 晚安｜家庭心流语录\n\n「'+q.text+'」'+src+'\n\n—— '+mn(q.mid)+' 分享';
   lastWechatText=txt;
   var box=document.getElementById('wechatOut');
   box.textContent=txt;box.style.display='block';
@@ -498,7 +498,7 @@ function delM(id){
   save();render();toast('已删除');
 }
 function saveFN(){
-  cfg.familyName=document.getElementById('fnInput').value.trim()||'我们家的心流语录';
+  cfg.familyName=document.getElementById('fnInput').value.trim()||'家庭心流语录';
   save();render();toast('已保存');
 }
 function clearAll(){
