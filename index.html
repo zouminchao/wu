@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>家庭心流语录</title>
+<title>心流.语录集</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -323,7 +323,6 @@ function addQuote(){
   if(!cur){toast('请选择是谁添加的');return;}
   var src=document.getElementById('addSrc').value.trim();
   var note=document.getElementById('addNote').value.trim();
-  // 优化 ID 生成算法，防止未来多设备数据合并时碰撞
   var secureId = 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
   Q.unshift({id:secureId,text:text,src:src,note:note,mid:cur,ts:Date.now(),lk:0});
   save();
@@ -385,7 +384,20 @@ function clearAll(){
   Q=[];save();render();toast('已清空');
 }
 
+// 🔐 独立密码验证函数
+function checkAuth() {
+  var pwd = prompt("此操作属于敏感导出行为，请输入管理员密码：");
+  if(pwd !== "cg12345") {
+    toast("密码错误，拒绝访问！");
+    return false;
+  }
+  return true;
+}
+
+// 🔒 密码保护：导出 .txt 语录册
 function exportBook(){
+  if(!checkAuth()) return; // 验证失败则熔断
+  
   var sorted=Q.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);});
   var lines=[cfg.familyName,'','共 '+sorted.length+' 句 · 导出于 '+new Date().toLocaleDateString('zh-CN'),'──────────────────────────────',''];
   sorted.forEach(function(q,i){
@@ -399,18 +411,20 @@ function exportBook(){
   a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'}));
   a.download=(cfg.familyName||'家庭心流语录')+'.txt';a.click();toast('语录册已导出');
 }
+
+// 🔒 密码保护：一键复制全部金句文本
 function copyAll(){
+  if(!checkAuth()) return; // 验证失败则熔断
+  
   var sorted=Q.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);});
   copyText(sorted.map(function(q,i){return(i+1)+'. "'+q.text+'"'+(q.src?'\n   —— '+q.src:'')+'\n   '+mn(q.mid)+' · '+ds(q.ts);}).join('\n\n'),'已复制全部金句');
 }
 
-// ⬇ 独家新增：导出完整结构的 JSON 备份数据（包含成员配置）
+// 🔒 密码保护：导出系统级 JSON 备份数据
 function exportBackupJSON(){
-  const backupData = {
-    Q: Q,
-    M: M,
-    cfg: cfg
-  };
+  if(!checkAuth()) return; // 验证失败则熔断
+  
+  const backupData = { Q: Q, M: M, cfg: cfg };
   const blob = new Blob([JSON.stringify(backupData, null, 2)], {type: 'application/json;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -419,7 +433,6 @@ function exportBackupJSON(){
   toast('备份数据已导出');
 }
 
-// ⬆ 独家新增：导入合并外部 JSON 数据（智能查重，不覆盖现有资产）
 function importBackupJSON(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -431,8 +444,6 @@ function importBackupJSON(event) {
         toast('错误：无效的备份文件格式');
         return;
       }
-      
-      // 智能合并金句：通过 ID 查重
       let importCount = 0;
       data.Q.forEach(newQ => {
         if (!Q.some(existingQ => existingQ.id === newQ.id)) {
@@ -440,8 +451,6 @@ function importBackupJSON(event) {
           importCount++;
         }
       });
-      
-      // 合并成员：如果导入的备份里有当前列表不存在的成员，追加进来
       if (data.M && Array.isArray(data.M)) {
         data.M.forEach(newM => {
           if (!M.some(existingM => existingM.id === newM.id)) {
@@ -449,17 +458,13 @@ function importBackupJSON(event) {
           }
         });
       }
-      
-      // 排序重新归位
       Q.sort(function(a,b){return (b.ts||0)-(a.ts||0);});
-      
-      save();
-      render();
+      save();render();
       toast('成功合并导入 ' + importCount + ' 条新金句！');
     } catch(err) {
       toast('导入失败：解析 JSON 出错');
     }
-    event.target.value = ''; // 清空 file input
+    event.target.value = '';
   };
   reader.readAsText(file);
 }
@@ -469,13 +474,13 @@ function copyText(txt,msg){
   else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);toast(msg||'已复制');}
 }
 
-// 🔒 核心拦截重构：加入进入“设置”时的密码屏障
+// 🔒 密码保护：进入“设置”页面
 function go(id){
   if(id === 'settings') {
     var pwd = prompt("请输入管理员密码以进入设置：");
     if(pwd !== "cg12345") {
       toast("密码错误，拒绝访问！");
-      return; // 拦截，不切换面板
+      return;
     }
   }
 
