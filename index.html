@@ -387,7 +387,7 @@ function clearAll(){
 // 🔐 独立密码验证函数
 function checkAuth() {
   var pwd = prompt("此操作属于敏感导出行为，请输入管理员密码：");
-  if(pwd !== "cg12345") {
+  if(pwd !== "cg1-5") {
     toast("密码错误，拒绝访问！");
     return false;
   }
@@ -478,7 +478,7 @@ function copyText(txt,msg){
 function go(id){
   if(id === 'settings') {
     var pwd = prompt("请输入管理员密码以进入设置：");
-    if(pwd !== "cg12345") {
+    if(pwd !== "cg1-5") {
       toast("密码错误，拒绝访问！");
       return;
     }
