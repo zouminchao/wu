@@ -185,6 +185,33 @@ textarea:focus,input:focus{outline:none;border-color:#534AB7}
 </div>
 
 <div id="psettings" class="pnl">
+  <!-- ☁️ 云端持久化配置 -->
+  <div class="sbox" style="border-color:#85B7EB">
+    <div class="stit">☁️ 云端持久化（家人跨设备共享）</div>
+    <div id="cloudStatus" style="font-size:12px;color:var(--tx2);margin-bottom:10px;padding:6px 10px;background:var(--bg2);border-radius:6px">💾 本地存储模式（未配置云端）</div>
+
+    <div style="font-size:12px;color:var(--tx3);line-height:1.8;margin-bottom:12px">
+      使用 <b>JSONBin.io</b> 免费云端存储，让家人用同一个链接就能共享数据。<br>
+      步骤：① <a href="https://jsonbin.io" target="_blank" style="color:var(--info-tx)">注册 jsonbin.io</a> → ② 点击 "Create Bin"，内容填 <code style="background:var(--bg2);padding:1px 4px;border-radius:3px">{}</code> → ③ 复制 Bin ID 和 Master Key 填入下方
+    </div>
+
+    <div style="display:grid;gap:8px;margin-bottom:10px">
+      <div>
+        <div class="fl-lbl">Bin ID（格式如：6866a1f48a456b796…）</div>
+        <input type="text" id="binIdInput" placeholder="粘贴你的 Bin ID" style="font-family:monospace;font-size:13px">
+      </div>
+      <div>
+        <div class="fl-lbl">Master Key（$2a$10$… 开头）</div>
+        <input type="password" id="apiKeyInput" placeholder="粘贴你的 Master Key" style="font-family:monospace;font-size:13px">
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn bp" onclick="saveCloudCreds()">☁️ 启用云端同步</button>
+      <button class="btn" onclick="clearCloudCreds()">✕ 断开云端</button>
+    </div>
+    <div style="font-size:11px;color:var(--tx3);margin-top:8px">凭证只存在你自己的浏览器 localStorage 里，不会上传到任何第三方。</div>
+  </div>
+
   <div class="sbox">
     <div class="stit">数据备份与恢复（多设备协同）</div>
     <div style="display:flex;gap:7px;flex-wrap:wrap">
@@ -239,13 +266,108 @@ const CL={
 const TABS=['home','all','tl','book','add','settings'];
 let Q=[],M=[],cfg={familyName:'我们家的心流语录'},cur=null,fi=0,filt='all',liked=new Set();
 
-function save(){localStorage.setItem('fq',JSON.stringify(Q));localStorage.setItem('fc',JSON.stringify({M,cfg}));localStorage.setItem('fl',JSON.stringify([...liked]));}
-function loadData(){
-  try{const d=localStorage.getItem('fq');if(d)Q=JSON.parse(d);}catch(e){Q=[];}
-  try{const d=localStorage.getItem('fc');if(d){const p=JSON.parse(d);M=p.M||[];cfg=p.cfg||cfg;}}catch(e){}
-  try{const d=localStorage.getItem('fl');if(d)liked=new Set(JSON.parse(d));}catch(e){}
+// ─── 云端持久化配置 ────────────────────────────────────────────
+// 填入你的 JSONBin.io 凭证后，数据自动云端共享；留空则降级为本地存储
+var CLOUD_BIN_ID  = localStorage.getItem('_binId')  || '';
+var CLOUD_API_KEY = localStorage.getItem('_apiKey') || '';
+var _saving = false; // 防并发
+
+// 本地缓存（做离线兜底）
+function saveLocal(data){
+  try{localStorage.setItem('fq',JSON.stringify(data.Q));localStorage.setItem('fc',JSON.stringify({M:data.M,cfg:data.cfg}));localStorage.setItem('fl',JSON.stringify([...data.liked||[]]));}catch(e){}
+}
+function loadLocal(){
+  var data={Q:[],M:[],cfg:{familyName:'我们家的心流语录'},liked:[]};
+  try{const d=localStorage.getItem('fq');if(d)data.Q=JSON.parse(d);}catch(e){}
+  try{const d=localStorage.getItem('fc');if(d){const p=JSON.parse(d);data.M=p.M||[];data.cfg=p.cfg||data.cfg;}}catch(e){}
+  try{const d=localStorage.getItem('fl');if(d)data.liked=JSON.parse(d);}catch(e){}
+  return data;
+}
+
+// 云端：写（PUT）
+async function saveCloud(data){
+  if(!CLOUD_BIN_ID||!CLOUD_API_KEY) return false;
+  try{
+    const res=await fetch('https://api.jsonbin.io/v3/b/'+CLOUD_BIN_ID,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':CLOUD_API_KEY},
+      body:JSON.stringify(data)
+    });
+    return res.ok;
+  }catch(e){return false;}
+}
+
+// 云端：读（GET）
+async function loadCloud(){
+  if(!CLOUD_BIN_ID||!CLOUD_API_KEY) return null;
+  try{
+    const res=await fetch('https://api.jsonbin.io/v3/b/'+CLOUD_BIN_ID+'/latest',{
+      headers:{'X-Master-Key':CLOUD_API_KEY}
+    });
+    if(!res.ok) return null;
+    const j=await res.json();
+    return j.record||null;
+  }catch(e){return null;}
+}
+
+// 统一 save
+async function save(){
+  const data={Q,M,cfg,liked:[...liked]};
+  saveLocal(data); // 先写本地，保证即时
+  if(CLOUD_BIN_ID&&CLOUD_API_KEY){
+    if(_saving) return;
+    _saving=true;
+    const ok=await saveCloud(data);
+    _saving=false;
+    if(!ok) toast('⚠️ 云端同步失败，数据已保存本地');
+  }
+}
+
+// 统一 loadData
+async function loadData(){
+  // 先从本地快速渲染
+  var local=loadLocal();
+  Q=local.Q;M=local.M;cfg=local.cfg;liked=new Set(local.liked);
   if(!M.length)M=[{id:'m1',name:'爸爸',color:'blue'},{id:'m2',name:'妈妈',color:'pink'},{id:'m3',name:'我',color:'purple'}];
   if(!cur&&M.length)cur=M[0].id;
+
+  // 再从云端拉取最新（若已配置）
+  if(CLOUD_BIN_ID&&CLOUD_API_KEY){
+    document.getElementById('cloudStatus').textContent='🔄 正在从云端同步…';
+    const cloud=await loadCloud();
+    if(cloud){
+      Q=cloud.Q||Q;
+      M=cloud.M||M;
+      cfg=cloud.cfg||cfg;
+      liked=new Set(cloud.liked||[]);
+      if(!cur&&M.length)cur=M[0].id;
+      saveLocal({Q,M,cfg,liked:[...liked]}); // 更新本地缓存
+      document.getElementById('cloudStatus').textContent='☁️ 云端已同步 · '+new Date().toLocaleTimeString('zh-CN');
+      render();
+    } else {
+      document.getElementById('cloudStatus').textContent='⚠️ 云端拉取失败，显示本地数据';
+    }
+  } else {
+    document.getElementById('cloudStatus').textContent='💾 本地存储模式（未配置云端）';
+  }
+}
+
+// 保存 JSONBin 凭证
+function saveCloudCreds(){
+  var bid=document.getElementById('binIdInput').value.trim();
+  var key=document.getElementById('apiKeyInput').value.trim();
+  if(!bid||!key){toast('请填写完整的 Bin ID 和 API Key');return;}
+  CLOUD_BIN_ID=bid; CLOUD_API_KEY=key;
+  localStorage.setItem('_binId',bid); localStorage.setItem('_apiKey',key);
+  toast('云端配置已保存，正在推送当前数据…');
+  save().then(function(){toast('☁️ 数据已推送到 JSONBin！');loadData();});
+}
+function clearCloudCreds(){
+  CLOUD_BIN_ID=''; CLOUD_API_KEY='';
+  localStorage.removeItem('_binId'); localStorage.removeItem('_apiKey');
+  document.getElementById('binIdInput').value=''; document.getElementById('apiKeyInput').value='';
+  document.getElementById('cloudStatus').textContent='💾 本地存储模式（未配置云端）';
+  toast('已切换回本地存储模式');
 }
 
 function mc(id){const m=M.find(m=>m.id===id);return m?CL[m.color]||CL.purple:CL.purple;}
@@ -503,7 +625,15 @@ function go(id){
 var tt;
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){el.classList.remove('show');},2200);}
 
-loadData();render();
+// 回填已保存的凭证到输入框
+(function(){
+  var bid=localStorage.getItem('_binId')||'';
+  var key=localStorage.getItem('_apiKey')||'';
+  if(bid) document.getElementById('binIdInput').value=bid;
+  if(key) document.getElementById('apiKeyInput').value=key;
+})();
+
+loadData().then(function(){render();});
 </script>
 </body>
 </html>
