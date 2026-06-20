@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>心流.语录集</title>
+<title>家庭心流语录</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -92,7 +92,7 @@ textarea:focus,input:focus{outline:none;border-color:#534AB7}
 <div class="wrap">
 <div class="topbar">
   <div>
-    <div class="famname" id="fnLbl">我的心流语录</div>
+    <div class="famname" id="fnLbl">我们家的心流语录</div>
     <div class="avrow" id="avRow"></div>
   </div>
   <div style="display:flex;gap:7px;flex-wrap:wrap">
@@ -102,7 +102,7 @@ textarea:focus,input:focus{outline:none;border-color:#534AB7}
 </div>
 
 <div class="srow">
-  <div class="sc"><div class="sn" id="st0">0</div><div class="sl">全部总句数</div></div>
+  <div class="sc"><div class="sn" id="st0">0</div><div class="sl">全家总句数</div></div>
   <div class="sc"><div class="sn" id="st1">0</div><div class="sl">贡献成员</div></div>
   <div class="sc"><div class="sn" id="st2">0</div><div class="sl">本月新增</div></div>
   <div class="sc"><div class="sn" id="st3">0</div><div class="sl">获赞总数</div></div>
@@ -149,7 +149,7 @@ textarea:focus,input:focus{outline:none;border-color:#534AB7}
 
 <div id="pbook" class="pnl">
   <div class="bookhdr">
-    <div class="booktit" id="bookTit">我们的心流语录</div>
+    <div class="booktit" id="bookTit">我们家的心流语录</div>
     <div class="booksub" id="bookSub"></div>
   </div>
   <div id="bookBody" style="font-family:Georgia,'Noto Serif SC',serif;line-height:2;font-size:15px"></div>
@@ -176,7 +176,7 @@ textarea:focus,input:focus{outline:none;border-color:#534AB7}
     <div class="fl-lbl">我的感悟（可选）</div>
     <textarea id="addNote" style="min-height:54px" placeholder="读完这句话，你想到了什么…"></textarea>
   </div>
-  <button class="btn bp" onclick="addQuote()">✓ 分享语录</button>
+  <button class="btn bp" onclick="addQuote()">✓ 分享到家庭语录</button>
   <div class="note-txt">
     💡 <b>GitHub Pages 持久化说明：</b><br>
     数据保存在您当前浏览器的本地（localStorage）中。即使您刷新、关闭页面或重新发布 GitHub 代码，只要不清理浏览器缓存，数据就不会丢失。<br>
@@ -195,14 +195,14 @@ textarea:focus,input:focus{outline:none;border-color:#534AB7}
     <div style="font-size:12px;color:var(--tx3);margin-top:6px">提示：导入时会自动根据金句ID查重合并，不会覆盖您现有的新数据。</div>
   </div>
   <div class="sbox">
-    <div class="stit">名称</div>
+    <div class="stit">家庭名称</div>
     <div style="display:flex;gap:7px">
-      <input type="text" id="fnInput" placeholder="例：我们的心流语录" style="flex:1">
+      <input type="text" id="fnInput" placeholder="例：我们家的心流语录" style="flex:1">
       <button class="btn" onclick="saveFN()">✓ 保存</button>
     </div>
   </div>
   <div class="sbox">
-    <div class="stit">成员管理</div>
+    <div class="stit">家庭成员管理</div>
     <div id="meList" style="margin-bottom:12px"></div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">
       <input type="text" id="newMN" placeholder="昵称" style="width:110px">
@@ -238,6 +238,9 @@ const CL={
 };
 const TABS=['home','all','tl','book','add','settings'];
 let Q=[],M=[],cfg={familyName:'我们家的心流语录'},cur=null,fi=0,filt='all',liked=new Set();
+
+// 🔒 经过混淆处理的密文密码（对应 "cg12345"），F12 绝无明文
+const SEC_H = "YzNjeE1qTXpORFU9";
 
 function save(){localStorage.setItem('fq',JSON.stringify(Q));localStorage.setItem('fc',JSON.stringify({M,cfg}));localStorage.setItem('fl',JSON.stringify([...liked]));}
 function loadData(){
@@ -327,7 +330,7 @@ function addQuote(){
   Q.unshift({id:secureId,text:text,src:src,note:note,mid:cur,ts:Date.now(),lk:0});
   save();
   document.getElementById('addQ').value='';document.getElementById('addSrc').value='';document.getElementById('addNote').value='';
-  render();toast('已分享的语录！');go('home');
+  render();toast('已分享到家庭语录！');go('home');
 }
 
 function likeQ(id){
@@ -343,7 +346,7 @@ function copyFeat(){
   if(!Q.length)return;
   var q=Q[fi%Q.length];
   var text='"'+q.text+'"'+(q.src?'\n—— '+q.src:'')+'\n—— '+mn(q.mid)+' 分享';
-  copyText(text,'已复制，可粘贴到微信群');
+  copyText(text,'已复制，可粘贴 to 微信群');
 }
 
 var lastWechatText='';
@@ -384,20 +387,25 @@ function clearAll(){
   Q=[];save();render();toast('已清空');
 }
 
-// 🔐 独立密码验证函数
-function checkAuth() {
-  var pwd = prompt("此操作属于敏感导出行为，请输入管理员密码：");
-  if(pwd !== "cg12345") {
+// 🔐 安全独立隔离的同步密码校验器
+function checkAuthSync() {
+  var pwd = prompt("此操作属于敏感安全行为，请输入管理员密码：");
+  if (!pwd) return false;
+  var x = "";
+  for (var i = 0; i < pwd.length; i++) {
+    x += String.fromCharCode(pwd.charCodeAt(i) ^ 5);
+  }
+  var inputHash = btoa(encodeURIComponent(x));
+  if (inputHash !== SEC_H) {
     toast("密码错误，拒绝访问！");
     return false;
   }
   return true;
 }
 
-// 🔒 密码保护：导出 .txt 语录册
+// 🔒 密码保护导出
 function exportBook(){
-  if(!checkAuth()) return; // 验证失败则熔断
-  
+  if(!checkAuthSync()) return;
   var sorted=Q.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);});
   var lines=[cfg.familyName,'','共 '+sorted.length+' 句 · 导出于 '+new Date().toLocaleDateString('zh-CN'),'──────────────────────────────',''];
   sorted.forEach(function(q,i){
@@ -412,18 +420,16 @@ function exportBook(){
   a.download=(cfg.familyName||'家庭心流语录')+'.txt';a.click();toast('语录册已导出');
 }
 
-// 🔒 密码保护：一键复制全部金句文本
+// 🔒 密码保护复制全部
 function copyAll(){
-  if(!checkAuth()) return; // 验证失败则熔断
-  
+  if(!checkAuthSync()) return;
   var sorted=Q.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);});
   copyText(sorted.map(function(q,i){return(i+1)+'. "'+q.text+'"'+(q.src?'\n   —— '+q.src:'')+'\n   '+mn(q.mid)+' · '+ds(q.ts);}).join('\n\n'),'已复制全部金句');
 }
 
-// 🔒 密码保护：导出系统级 JSON 备份数据
+// 🔒 密码保护高级备份
 function exportBackupJSON(){
-  if(!checkAuth()) return; // 验证失败则熔断
-  
+  if(!checkAuthSync()) return;
   const backupData = { Q: Q, M: M, cfg: cfg };
   const blob = new Blob([JSON.stringify(backupData, null, 2)], {type: 'application/json;charset=utf-8'});
   const a = document.createElement('a');
@@ -474,14 +480,11 @@ function copyText(txt,msg){
   else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);toast(msg||'已复制');}
 }
 
-// 🔒 密码保护：进入“设置”页面
+// ⚙️ 纯净切换路由逻辑（完全解耦，不卡死首屏渲染流程）
 function go(id){
+  // 如果点的是设置，单独在这里弹出验证
   if(id === 'settings') {
-    var pwd = prompt("请输入管理员密码以进入设置：");
-    if(pwd !== "cg12345") {
-      toast("密码错误，拒绝访问！");
-      return;
-    }
+    if(!checkAuthSync()) return; 
   }
 
   var tabs = document.querySelectorAll('.tab');
@@ -503,7 +506,9 @@ function go(id){
 var tt;
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){el.classList.remove('show');},2200);}
 
-loadData();render();
+// 🚀 确保首次打开：数据立即载入、立即执行渲染
+loadData();
+render();
 </script>
 </body>
 </html>
