@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>家庭心流语录</title>
+
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI';margin:0;background:#f5f4f0}
+.wrap{max-width:760px;margin:auto;padding:16px}
+
+#syncBar{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:26px;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  background:#666;
+  z-index:9999;
+}
+#syncBar.syncing{background:#444}
+#syncBar.success{background:#2e7d32}
+#syncBar.fail{background:#c62828}
+#syncBar.offline{background:#555}
+
+.card{
+  background:#fff;
+  padding:10px;
+  border-radius:8px;
+  margin:8px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div id="syncBar">IDLE</div>
+
+<div class="wrap">
+<h2>家庭心流语录</h2>
+
+<button onclick="addQuote()">＋ 添加金句</button>
+
+<div id="list"></div>
+</div>
+
+<script>
+
+/* =========================
+   数据
+========================= */
+let Q = [];
+let M = [];
+let cfg = {};
+let liked = new Set();
+
+/* =========================
+   GIST CONFIG
+========================= */
+const GIST = {
+  id: "bcf42fce664d7758ee879c451cae7bb0",
+  file: "family-flow.json",
+  token: "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",
+  lock:false
+};
+
+/* =========================
+   状态
+========================= */
+function setSync(s,msg){
+  const bar = document.getElementById("syncBar");
+  bar.className = s;
+  bar.innerText = msg || s.toUpperCase();
+}
+
+/* =========================
+   渲染
+========================= */
+function render(){
+  document.getElementById("list").innerHTML =
+    Q.map(q=>`
+      <div class="card">${q.text}</div>
+    `).join("");
+}
+
+/* =========================
+   添加
+========================= */
+function addQuote(){
+  const t = prompt("输入金句");
+  if(!t) return;
+
+  Q.unshift({
+    id:Date.now(),
+    text:t,
+    ts:Date.now()
+  });
+
+  save();
+  render();
+}
+
+/* =========================
+   SAVE
+========================= */
+function save(){
+  localStorage.setItem("q",JSON.stringify(Q));
+  push();
+}
+
+/* =========================
+   PUSH（稳定版）
+========================= */
+async function push(){
+  if(GIST.lock) return;
+  GIST.lock = true;
+
+  setSync("syncing","SYNCING...");
+
+  try{
+    const res = await fetch(`https://api.github.com/gists/${GIST.id}`,{
+      method:"PATCH",
+      headers:{
+        "Authorization":`token ${GIST.token}`,
+        "Accept":"application/vnd.github+json",
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        files:{
+          [GIST.file]:{
+            content:JSON.stringify({Q,M,cfg,liked:[...liked]})
+          }
+        }
+      })
+    });
+
+    if(!res.ok){
+      setSync("fail","HTTP " + res.status);
+      GIST.lock=false;
+      return;
+    }
+
+    setSync("success","SYNC OK");
+
+  }catch(e){
+    console.log(e);
+    setSync("offline","NETWORK ERROR");
+  }
+
+  setTimeout(()=>GIST.lock=false,1000);
+}
+
+/* =========================
+   PULL（修复版）
+========================= */
+async function pull(){
+  try{
+    setSync("syncing","LOADING...");
+
+    const res = await fetch(`https://api.github.com/gists/${GIST.id}`);
+
+    if(!res.ok){
+      setSync("fail","HTTP " + res.status);
+      return;
+    }
+
+    const data = await res.json();
+
+    const file = data.files?.[GIST.file];
+
+    if(!file || !file.content){
+      setSync("fail","NO FILE");
+      return;
+    }
+
+    let db;
+    try{
+      db = JSON.parse(file.content);
+    }catch(e){
+      setSync("fail","JSON ERROR");
+      return;
+    }
+
+    Q = db.Q || [];
+    M = db.M || [];
+    cfg = db.cfg || {};
+    liked = new Set(db.liked || []);
+
+    render();
+    setSync("success","SYNC OK");
+
+  }catch(e){
+    console.log(e);
+    setSync("offline","OFFLINE");
+  }
+}
+
+/* =========================
+   INIT
+========================= */
+function init(){
+  const local = localStorage.getItem("q");
+  if(local) Q = JSON.parse(local);
+
+  render();
+  pull();
+}
+
+init();
+
+</script>
+
+</body>
+</html>
