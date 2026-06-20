@@ -3,21 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>家庭心流语录 - Stable</title>
+<title>家庭心流语录 - Final</title>
 
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI';margin:0;background:#f5f4f0}
+body{margin:0;font-family:-apple-system;background:#f5f4f0}
 .wrap{max-width:760px;margin:auto;padding:16px}
 
 #bar{
   position:fixed;top:0;left:0;right:0;
   height:26px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:12px;
-  color:#fff;
-  background:#666;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:#fff;background:#666;
 }
 
 .ok{background:#2e7d32}
@@ -35,10 +31,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI';margin:0;background
 
 <body>
 
-<div id="bar">IDLE</div>
+<div id="bar">INIT</div>
 
 <div class="wrap">
-<h2>家庭心流语录（Stable）</h2>
+<h2>家庭心流语录（Final Stable）</h2>
 <button onclick="addQuote()">＋添加金句</button>
 <div id="list"></div>
 </div>
@@ -46,15 +42,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI';margin:0;background
 <script>
 
 /* =========================
-   数据层（工业级）
+   DB（永远合法结构）
 ========================= */
-let DB = {
-  v: 1,
-  Q: [],
-  M: [],
-  cfg: {},
-  liked: []
-};
+let DB = createEmpty();
 
 /* =========================
    GIST
@@ -67,36 +57,78 @@ const GIST = {
 };
 
 /* =========================
-   状态
+   安全初始化结构
 ========================= */
-function setBar(type,text){
-  const b = document.getElementById("bar");
-  b.className = type;
-  b.innerText = text;
+function createEmpty(){
+  return {
+    v:1,
+    Q:[],
+    M:[],
+    cfg:{},
+    liked:[]
+  };
 }
 
 /* =========================
-   安全解析（核心）
+   UI状态
 ========================= */
-function safeParse(str){
+function setBar(type,text){
+  const b=document.getElementById("bar");
+  b.className=type;
+  b.innerText=text;
+}
+
+/* =========================
+   超级安全解析（核心）
+========================= */
+function normalize(raw){
   try{
-    if(!str) return null;
-    const obj = JSON.parse(str);
 
-    if(typeof obj !== "object") return null;
+    let obj = {};
 
+    if(!raw || typeof raw !== "string"){
+      obj = {};
+    }else{
+      try{
+        obj = JSON.parse(raw);
+      }catch(e){
+        console.log("JSON BROKEN → fallback");
+        obj = {};
+      }
+    }
+
+    // 强制结构修复（核心）
     return {
       v: obj.v || 1,
-      Q: Array.isArray(obj.Q)?obj.Q:[],
-      M: Array.isArray(obj.M)?obj.M:[],
+      Q: Array.isArray(obj.Q) ? obj.Q : [],
+      M: Array.isArray(obj.M) ? obj.M : [],
       cfg: obj.cfg || {},
-      liked: Array.isArray(obj.liked)?obj.liked:[]
+      liked: Array.isArray(obj.liked) ? obj.liked : []
     };
 
   }catch(e){
-    console.log("parse fail",e);
-    return null;
+    console.log("HARD FAIL",e);
+    return createEmpty();
   }
+}
+
+/* =========================
+   合并（防冲突）
+========================= */
+function merge(local,remote){
+  const map = new Map();
+
+  [...local.Q,...remote.Q].forEach(i=>{
+    if(i?.id) map.set(i.id,i);
+  });
+
+  return {
+    ...local,
+    Q:[...map.values()],
+    M:remote.M,
+    cfg:remote.cfg,
+    liked:remote.liked
+  };
 }
 
 /* =========================
@@ -113,7 +145,7 @@ function render(){
    添加
 ========================= */
 function addQuote(){
-  const t = prompt("输入金句");
+  const t=prompt("输入金句");
   if(!t) return;
 
   DB.Q.unshift({
@@ -135,16 +167,16 @@ function save(){
 }
 
 /* =========================
-   PUSH（不会污染云端）
+   PUSH（安全版）
 ========================= */
 async function push(){
   if(GIST.lock) return;
-  GIST.lock = true;
+  GIST.lock=true;
 
-  setBar("sync","SYNCING");
+  setBar("sync","SYNC...");
 
   try{
-    const res = await fetch(`https://api.github.com/gists/${GIST.id}`,{
+    const res=await fetch(`https://api.github.com/gists/${GIST.id}`,{
       method:"PATCH",
       headers:{
         "Authorization":`token ${GIST.token}`,
@@ -172,42 +204,31 @@ async function push(){
     setBar("err","NETWORK");
   }
 
-  setTimeout(()=>GIST.lock=false,1200);
+  setTimeout(()=>GIST.lock=false,1000);
 }
 
 /* =========================
-   PULL（工业级修复）
+   PULL（Final稳定核心）
 ========================= */
 async function pull(){
   try{
+
     setBar("sync","LOADING");
 
-    const res = await fetch(`https://api.github.com/gists/${GIST.id}`);
+    const res=await fetch(`https://api.github.com/gists/${GIST.id}`);
 
     if(!res.ok){
       setBar("err","HTTP "+res.status);
       return;
     }
 
-    const data = await res.json();
+    const data=await res.json();
+    const file=data.files?.[GIST.file];
 
-    const file = data.files?.[GIST.file];
+    const remote=normalize(file?.content);
 
-    const parsed = safeParse(file?.content);
-
-    if(!parsed){
-      setBar("err","CORRUPTED DATA");
-      return;
-    }
-
-    /* =====================
-       Merge策略（核心）
-    ===================== */
-    DB.Q = merge(DB.Q, parsed.Q);
-
-    DB.M = parsed.M;
-    DB.cfg = parsed.cfg;
-    DB.liked = parsed.liked;
+    /* 永远不拒绝数据，只修复 */
+    DB = merge(DB,remote);
 
     render();
 
@@ -220,27 +241,13 @@ async function pull(){
 }
 
 /* =========================
-   合并算法（工业关键）
-========================= */
-function merge(local,remote){
-  const map = new Map();
-
-  [...local,...remote].forEach(i=>{
-    map.set(i.id,i);
-  });
-
-  return [...map.values()];
-}
-
-/* =========================
-   INIT（云优先）
+   INIT
 ========================= */
 function init(){
-  const local = localStorage.getItem("db");
+  const local=localStorage.getItem("db");
 
   if(local){
-    const parsed = safeParse(local);
-    if(parsed) DB = parsed;
+    DB = normalize(local);
   }
 
   render();
