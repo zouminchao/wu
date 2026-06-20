@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>家庭心流语录</title>
+
+<style>
+/* ===== 原有样式（保持不动，省略压缩无改动） ===== */
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI';margin:0;background:#f5f4f0}
+.wrap{max-width:780px;margin:auto;padding:16px}
+
+/* 状态条 */
+#syncBar{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:28px;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#222;
+  color:#fff;
+  z-index:9999;
+}
+#syncBar.syncing{background:#444}
+#syncBar.success{background:#2e7d32}
+#syncBar.fail{background:#c62828}
+#syncBar.offline{background:#666}
+</style>
+</head>
+
+<body>
+
+<div id="syncBar">SYNC: idle</div>
+
+<div class="wrap">
+<h2>家庭心流语录</h2>
+
+<button onclick="addQuote()">＋添加金句</button>
+
+<div id="list"></div>
+</div>
+
+<script>
+
+/* =========================
+   数据层
+========================= */
+let Q = [];
+let M = [];
+let cfg = {familyName:"家庭心流语录"};
+let liked = new Set();
+
+/* =========================
+   GIST 配置（你只需要改这里）
+========================= */
+const GIST_SYNC = {
+  id: "填你的GIST_ID",
+  file: "family-flow.json",
+  token: "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",
+  lock:false,
+
+  /* ===== 拉取 ===== */
+  async pull(){
+    try{
+      setSync("syncing");
+
+      const res = await fetch(`https://api.github.com/gists/${this.id}`);
+      const data = await res.json();
+
+      const db = JSON.parse(data.files[this.file].content);
+
+      Q = db.Q || [];
+      M = db.M || [];
+      cfg = db.cfg || cfg;
+      liked = new Set(db.liked || []);
+
+      render();
+
+      setSync("success");
+    }catch(e){
+      console.log(e);
+      setSync("offline");
+    }
+  },
+
+  /* ===== 推送 ===== */
+  async push(){
+    if(this.lock) return;
+    this.lock = true;
+
+    setSync("syncing");
+
+    const db = {
+      Q,M,cfg,
+      liked:[...liked],
+      t:Date.now()
+    };
+
+    try{
+      await fetch(`https://api.github.com/gists/${this.id}`,{
+        method:"PATCH",
+        headers:{
+          "Authorization":`Bearer ${this.token}`,
+          "Accept":"application/vnd.github+json",
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          files:{
+            [this.file]:{
+              content:JSON.stringify(db,null,2)
+            }
+          }
+        })
+      });
+
+      setSync("success");
+    }catch(e){
+      console.log(e);
+      setSync("fail");
+    }
+
+    setTimeout(()=>this.lock=false,1200);
+  }
+};
+
+/* =========================
+   同步状态系统（Stage 3.2核心）
+========================= */
+function setSync(state){
+  const bar = document.getElementById("syncBar");
+  bar.className = state;
+
+  const map = {
+    syncing:"SYNCING...",
+    success:"✔ SYNCED",
+    fail:"✖ SYNC FAILED",
+    offline:"OFFLINE",
+    idle:"IDLE"
+  };
+
+  bar.innerText = map[state] || "SYNC";
+}
+
+/* =========================
+   防抖（关键优化）
+========================= */
+function debounce(fn, wait){
+  let t;
+  return function(){
+    clearTimeout(t);
+    t = setTimeout(()=>fn.apply(this,arguments),wait);
+  }
+}
+
+/* 包装 push */
+GIST_SYNC.push = debounce(GIST_SYNC.push.bind(GIST_SYNC),800);
+
+/* =========================
+   UI逻辑
+========================= */
+function render(){
+  const el = document.getElementById("list");
+  el.innerHTML = Q.map(q=>`
+    <div style="background:#fff;margin:8px;padding:10px;border-radius:8px">
+      <div>${q.text}</div>
+    </div>
+  `).join("");
+}
+
+function addQuote(){
+  const t = prompt("输入金句");
+  if(!t) return;
+
+  Q.unshift({
+    id:"q"+Date.now(),
+    text:t,
+    ts:Date.now()
+  });
+
+  save();
+  render();
+}
+
+/* =========================
+   save（云同步入口）
+========================= */
+function save(){
+  localStorage.setItem("q",JSON.stringify(Q));
+
+  // 云同步
+  GIST_SYNC.push();
+}
+
+/* =========================
+   初始化（云优先）
+========================= */
+async function init(){
+  const d = localStorage.getItem("q");
+  if(d) Q = JSON.parse(d);
+
+  render();
+
+  await GIST_SYNC.pull();
+}
+
+init();
+
+</script>
+
+</body>
+</html>
