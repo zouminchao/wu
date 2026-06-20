@@ -239,7 +239,7 @@ const CL={
 const TABS=['home','all','tl','book','add','settings'];
 let Q=[],M=[],cfg={familyName:'我们家的心流语录'},cur=null,fi=0,filt='all',liked=new Set();
 
-// 🔒 经过混淆处理的密文密码（对应 "cg12345"），F12 绝无明文
+// 🔒 经过混淆处理的密文密码（对应 "cg1~5"），F12 绝无明文
 const SEC_H = "YzNjeE1qTXpORFU9";
 
 function save(){localStorage.setItem('fq',JSON.stringify(Q));localStorage.setItem('fc',JSON.stringify({M,cfg}));localStorage.setItem('fl',JSON.stringify([...liked]));}
