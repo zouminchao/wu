@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>家庭心流语录</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff;--bg2:#f5f4f0;--bg3:#eeedfe;
+  --tx:#1a1a1a;--tx2:#666;--tx3:#999;
+  --bd:#e0ddd8;--bd2:#c8c4be;
+  --purple-bg:#EEEDFE;--purple-tx:#3C3489;--purple-ib:#534AB7;
+  --teal-bg:#E1F5EE;--teal-tx:#085041;--teal-ib:#1D9E75;
+  --coral-bg:#FAECE7;--coral-tx:#712B13;--coral-ib:#D85A30;
+  --amber-bg:#FAEEDA;--amber-tx:#633806;--amber-ib:#BA7517;
+  --blue-bg:#E6F1FB;--blue-tx:#0C447C;--blue-ib:#378ADD;
+  --pink-bg:#FBEAF0;--pink-tx:#72243E;--pink-ib:#D4537E;
+  --info-bg:#E6F1FB;--info-tx:#0C447C;
+  --danger-tx:#A32D2D;--danger-bd:#F09595;
+  --r:8px;--rl:12px
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1e1e1e;--bg2:#272727;--bg3:#2c2a3e;
+    --tx:#f0ede8;--tx2:#aaa;--tx3:#666;
+    --bd:#3a3a3a;--bd2:#555
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg2);color:var(--tx);min-height:100vh}
+.wrap{max-width:740px;margin:0 auto;padding:1.25rem 1rem 3rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px}
+.famname{font-size:18px;font-weight:600}
+.avrow{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem}
+.sc{background:var(--bg);border-radius:var(--r);padding:.75rem 1rem;border:0.5px solid var(--bd)}
+.sn{font-size:22px;font-weight:600}
+.sl{font-size:11px;color:var(--tx2);margin-top:2px}
+nav{display:flex;border-bottom:1px solid var(--bd);margin-bottom:1.25rem;overflow-x:auto}
+.tab{padding:8px 14px;font-size:13px;cursor:pointer;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;flex-shrink:0}
+.tab.on{color:var(--tx);border-bottom-color:var(--tx);font-weight:600}
+.pnl{display:none}.pnl.on{display:block}
+.btn{padding:7px 14px;font-size:13px;border-radius:var(--r);border:1px solid var(--bd2);background:var(--bg);color:var(--tx);cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:hover{background:var(--bg2)}.btn:active{transform:scale(.98)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.bp{background:var(--info-bg);color:var(--info-tx);border-color:#85B7EB}
+.bp:hover{opacity:.88}
+.bd-d{color:var(--danger-tx);border-color:var(--danger-bd)}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.qcard{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem;display:flex;flex-direction:column;gap:7px}
+.qcard.feat{border-width:2px}
+.qt{font-size:14px;line-height:1.7;font-family:Georgia,'Noto Serif SC',serif}
+.qs{font-size:12px;color:var(--tx2)}
+.qft{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.mbadge{font-size:11px;padding:2px 7px;border-radius:9px;font-weight:500}
+.dlbl{font-size:11px;color:var(--tx3);margin-left:auto}
+.hbtn{background:none;border:none;cursor:pointer;font-size:12px;color:var(--tx3);padding:2px 6px;display:flex;align-items:center;gap:2px}
+.hbtn.lkd{color:#D85A30}
+.fl{margin-bottom:12px}
+.fl-lbl{font-size:12px;color:var(--tx2);margin-bottom:4px;font-weight:500}
+textarea,input[type=text],select{width:100%;padding:9px 11px;border:1px solid var(--bd2);border-radius:var(--r);background:var(--bg);color:var(--tx);font-size:14px;font-family:inherit}
+textarea{min-height:76px;resize:vertical;line-height:1.6}
+textarea:focus,input:focus{outline:none;border-color:#534AB7}
+.mpicks{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:4px}
+.mpick{display:flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid var(--bd);border-radius:var(--r);cursor:pointer;font-size:13px;transition:.15s}
+.mpick.on{border-width:2px}
+.tl-month{font-size:11px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);padding-bottom:6px;margin:16px 0 8px}
+.tl-month:first-child{margin-top:0}
+.tlitem{display:flex;gap:8px;align-items:flex-start;padding:.75rem;background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:6px}
+.tlbody{flex:1;min-width:0}
+.tlt{font-size:14px;line-height:1.65;font-family:Georgia,'Noto Serif SC',serif;margin-bottom:3px}
+.tlm{font-size:11px;color:var(--tx3);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.bookhdr{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:2rem 1.5rem;text-align:center;margin-bottom:1.25rem}
+.booktit{font-size:20px;font-weight:600;font-family:Georgia,'Noto Serif SC',serif;margin-bottom:.4rem}
+.booksub{font-size:13px;color:var(--tx2)}
+.sbox{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:1.25rem;margin-bottom:.85rem}
+.stit{font-size:14px;font-weight:600;margin-bottom:.85rem}
+.merow{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.empty{text-align:center;padding:2.5rem;color:var(--tx3);font-size:14px}
+.chip{padding:4px 12px;border-radius:12px;border:1px solid var(--bd);font-size:12px;cursor:pointer;color:var(--tx2)}
+.chip.on{background:var(--bg2);color:var(--tx);border-color:var(--bd2)}
+.note-txt{font-size:12px;color:var(--tx3);margin-top:10px;line-height:1.6}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2C2C2A;color:#F1EFE8;padding:9px 20px;border-radius:20px;font-size:13px;z-index:999;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap}
+#toast.show{opacity:1}
+.wechat-out{display:none;margin-top:10px;background:var(--bg2);border-radius:var(--r);padding:12px;font-size:13px;line-height:1.7;white-space:pre-wrap;border:1px solid var(--bd)}
+.frow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+@media(max-width:500px){.srow{grid-template-columns:repeat(2,1fr)}.qgrid{grid-template-columns:1fr}.sn{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar">
+  <div>
+    <div class="famname" id="fnLbl">我们家的心流语录</div>
+    <div class="avrow" id="avRow"></div>
+  </div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap">
+    <button class="btn bp" onclick="go('add')">＋ 添加金句</button>
+    <button class="btn" onclick="go('settings')">⚙ 设置</button>
+  </div>
+</div>
+
+<div class="srow">
+  <div class="sc"><div class="sn" id="st0">0</div><div class="sl">全家总句数</div></div>
+  <div class="sc"><div class="sn" id="st1">0</div><div class="sl">贡献成员</div></div>
+  <div class="sc"><div class="sn" id="st2">0</div><div class="sl">本月新增</div></div>
+  <div class="sc"><div class="sn" id="st3">0</div><div class="sl">获赞总数</div></div>
+</div>
+
+<nav>
+  <div class="tab on" onclick="go('home')">🏠 主页</div>
+  <div class="tab" onclick="go('all')">📚 全部</div>
+  <div class="tab" onclick="go('tl')">📅 时光轴</div>
+  <div class="tab" onclick="go('book')">📖 语录册</div>
+  <div class="tab" onclick="go('add')">＋ 添加</div>
+  <div class="tab" onclick="go('settings')">⚙ 设置</div>
+</nav>
+
+<div id="phome" class="pnl on">
+  <div style="font-size:12px;color:var(--tx3);margin-bottom:8px">今日推荐</div>
+  <div class="qcard feat" id="featCard" style="margin-bottom:1.25rem">
+    <div class="qt" id="featTxt">还没有金句，去添加第一条吧！</div>
+    <div class="qs" id="featSrc"></div>
+    <div class="qft" id="featMeta"></div>
+    <div style="display:flex;gap:7px;margin-top:6px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="copyFeat()">📋 复制</button>
+      <button class="btn btn-sm" onclick="wechatFeat()">💬 微信文案</button>
+      <button class="btn btn-sm" onclick="nextFeat()">🔀 换一句</button>
+    </div>
+    <div class="wechat-out" id="wechatOut"></div>
+    <button id="copyWechatBtn" style="display:none;margin-top:6px" class="btn btn-sm bp" onclick="copyWechat()">📋 复制微信文案</button>
+  </div>
+  <div style="font-size:12px;color:var(--tx3);margin-bottom:8px">最近添加</div>
+  <div class="qgrid" id="recentList"></div>
+</div>
+
+<div id="pall" class="pnl">
+  <div class="frow">
+    <div id="mfilter" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+    <input type="text" id="searchBox" placeholder="搜索金句或来源…" style="width:160px;flex-shrink:0" oninput="renderAll()">
+  </div>
+  <div class="qgrid" id="allList"></div>
+</div>
+
+<div id="ptl" class="pnl">
+  <div id="tlCont"></div>
+</div>
+
+<div id="pbook" class="pnl">
+  <div class="bookhdr">
+    <div class="booktit" id="bookTit">我们家的心流语录</div>
+    <div class="booksub" id="bookSub"></div>
+  </div>
+  <div id="bookBody" style="font-family:Georgia,'Noto Serif SC',serif;line-height:2;font-size:15px"></div>
+  <div style="margin-top:1rem;display:flex;gap:7px;flex-wrap:wrap">
+    <button class="btn bp" onclick="exportBook()">⬇ 导出语录册 .txt</button>
+    <button class="btn" onclick="copyAll()">📋 复制全部</button>
+  </div>
+</div>
+
+<div id="padd" class="pnl">
+  <div class="fl">
+    <div class="fl-lbl">我是谁</div>
+    <div class="mpicks" id="mpicks"></div>
+  </div>
+  <div class="fl">
+    <div class="fl-lbl">金句内容 *</div>
+    <textarea id="addQ" placeholder="粘贴或输入今天看到的金句…"></textarea>
+  </div>
+  <div class="fl">
+    <div class="fl-lbl">来源（书名 / 作者 / 节目）</div>
+    <input type="text" id="addSrc" placeholder="例：《心流》米哈里·契克森米哈伊">
+  </div>
+  <div class="fl">
+    <div class="fl-lbl">我的感悟（可选）</div>
+    <textarea id="addNote" style="min-height:54px" placeholder="读完这句话，你想到了什么…"></textarea>
+  </div>
+  <button class="btn bp" onclick="addQuote()">✓ 分享到家庭语录</button>
+  <div class="note-txt">
+    💡 数据保存在本地浏览器（localStorage）。<br>
+    家人共享方式：把这个 HTML 文件放在共享网盘（坚果云/iCloud），每人下载到本地用同一个浏览器打开；<br>
+    或者用「导出语录册」功能定期汇总发给家人。
+  </div>
+</div>
+
+<div id="psettings" class="pnl">
+  <div class="sbox">
+    <div class="stit">家庭名称</div>
+    <div style="display:flex;gap:7px">
+      <input type="text" id="fnInput" placeholder="例：我们家的心流语录" style="flex:1">
+      <button class="btn" onclick="saveFN()">✓ 保存</button>
+    </div>
+  </div>
+  <div class="sbox">
+    <div class="stit">家庭成员管理</div>
+    <div id="meList" style="margin-bottom:12px"></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">
+      <input type="text" id="newMN" placeholder="昵称" style="width:110px">
+      <select id="newMC" style="width:110px">
+        <option value="purple">紫色</option>
+        <option value="teal">青色</option>
+        <option value="coral">珊瑚</option>
+        <option value="amber">金色</option>
+        <option value="blue">蓝色</option>
+        <option value="pink">粉色</option>
+      </select>
+      <button class="btn bp" onclick="addMember()">＋ 添加成员</button>
+    </div>
+  </div>
+  <div class="sbox" style="border-color:var(--danger-bd)">
+    <div class="stit" style="color:var(--danger-tx)">危险操作</div>
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:10px">清空所有金句，此操作不可恢复。</div>
+    <button class="btn bd-d" onclick="clearAll()">🗑 清空全部金句</button>
+  </div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const CL={
+  purple:{bg:'#EEEDFE',tx:'#3C3489',ib:'#534AB7',it:'#ffffff'},
+  teal:{bg:'#E1F5EE',tx:'#085041',ib:'#1D9E75',it:'#ffffff'},
+  coral:{bg:'#FAECE7',tx:'#712B13',ib:'#D85A30',it:'#ffffff'},
+  amber:{bg:'#FAEEDA',tx:'#633806',ib:'#BA7517',it:'#ffffff'},
+  blue:{bg:'#E6F1FB',tx:'#0C447C',ib:'#378ADD',it:'#ffffff'},
+  pink:{bg:'#FBEAF0',tx:'#72243E',ib:'#D4537E',it:'#ffffff'}
+};
+const TABS=['home','all','tl','book','add','settings'];
+let Q=[],M=[],cfg={familyName:'我们家的心流语录'},cur=null,fi=0,filt='all',liked=new Set();
+
+function save(){localStorage.setItem('fq',JSON.stringify(Q));localStorage.setItem('fc',JSON.stringify({M,cfg}));localStorage.setItem('fl',JSON.stringify([...liked]));}
+function loadData(){
+  try{const d=localStorage.getItem('fq');if(d)Q=JSON.parse(d);}catch(e){Q=[];}
+  try{const d=localStorage.getItem('fc');if(d){const p=JSON.parse(d);M=p.M||[];cfg=p.cfg||cfg;}}catch(e){}
+  try{const d=localStorage.getItem('fl');if(d)liked=new Set(JSON.parse(d));}catch(e){}
+  if(!M.length)M=[{id:'m1',name:'爸爸',color:'blue'},{id:'m2',name:'妈妈',color:'pink'},{id:'m3',name:'我',color:'purple'}];
+  if(!cur&&M.length)cur=M[0].id;
+}
+
+function mc(id){const m=M.find(m=>m.id===id);return m?CL[m.color]||CL.purple:CL.purple;}
+function mn(id){const m=M.find(m=>m.id===id);return m?m.name:'?';}
+function av(id,sz){sz=sz||28;const m=M.find(m=>m.id===id);if(!m)return'';const c=CL[m.color]||CL.purple;return'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:'+c.ib+';color:'+c.it+';display:flex;align-items:center;justify-content:center;font-size:'+Math.round(sz*.42)+'px;font-weight:600;flex-shrink:0" title="'+e(m.name)+'">'+e(m.name.slice(0,1))+'</div>';}
+function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ds(ts){if(!ts)return'';const d=new Date(ts);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
+
+function render(){
+  document.getElementById('fnLbl').textContent=cfg.familyName;
+  document.getElementById('avRow').innerHTML=M.map(function(m){return av(m.id,26);}).join('');
+  const now=new Date();
+  const thisM=Q.filter(function(q){const d=new Date(q.ts||0);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).length;
+  document.getElementById('st0').textContent=Q.length;
+  document.getElementById('st1').textContent=new Set(Q.map(function(q){return q.mid;})).size;
+  document.getElementById('st2').textContent=thisM;
+  document.getElementById('st3').textContent=Q.reduce(function(s,q){return s+(q.lk||0);},0);
+  renderHome();renderAll();renderTL();renderBook();renderMpicks();renderMeList();
+  document.getElementById('fnInput').value=cfg.familyName;
+}
+
+function renderHome(){
+  if(!Q.length){document.getElementById('featTxt').textContent='还没有金句，去添加第一条吧！';document.getElementById('featSrc').textContent='';document.getElementById('featMeta').innerHTML='';document.getElementById('recentList').innerHTML='<div class="empty">金句库空空的，快来添加第一句吧</div>';return;}
+  const q=Q[fi%Q.length];const c=mc(q.mid);
+  document.getElementById('featCard').style.borderColor=c.ib;
+  document.getElementById('featTxt').textContent=q.text;
+  document.getElementById('featSrc').textContent=q.src?'—— '+q.src:'';
+  document.getElementById('featMeta').innerHTML=av(q.mid,22)+'<span class="mbadge" style="background:'+c.bg+';color:'+c.tx+'">'+e(mn(q.mid))+'</span><span class="dlbl">'+ds(q.ts)+'</span>';
+  document.getElementById('wechatOut').style.display='none';
+  document.getElementById('copyWechatBtn').style.display='none';
+  var recent=Q.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);}).slice(0,6);
+  document.getElementById('recentList').innerHTML=recent.map(qcard).join('');
+}
+
+function renderAll(){
+  const search=document.getElementById('searchBox').value.trim().toLowerCase();
+  document.getElementById('mfilter').innerHTML='<div class="chip'+(filt==='all'?' on':'')+'" onclick="setF(\'all\')">全部</div>'+M.map(function(m){return'<div class="chip'+(filt===m.id?' on':'')+'" onclick="setF(\''+m.id+'\')">'+e(m.name)+'</div>';}).join('');
+  var list=Q.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+  if(filt!=='all')list=list.filter(function(q){return q.mid===filt;});
+  if(search)list=list.filter(function(q){return q.text.toLowerCase().includes(search)||(q.src||'').toLowerCase().includes(search);});
+  document.getElementById('allList').innerHTML=list.length?list.map(qcard).join(''):'<div class="empty">暂无匹配的金句</div>';
+}
+function setF(id){filt=id;renderAll();}
+
+function renderTL(){
+  var sorted=Q.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+  var byM={};var keys=[];
+  sorted.forEach(function(q){var d=new Date(q.ts||0);var k=d.getFullYear()+'年'+(d.getMonth()+1)+'月';if(!byM[k]){byM[k]=[];keys.push(k);}byM[k].push(q);});
+  if(!keys.length){document.getElementById('tlCont').innerHTML='<div class="empty">时光轴等待第一句金句</div>';return;}
+  document.getElementById('tlCont').innerHTML=keys.map(function(k){return'<div class="tl-month">'+k+' · '+byM[k].length+' 句</div>'+byM[k].map(function(q){var c=mc(q.mid);return'<div class="tlitem">'+av(q.mid,26)+'<div class="tlbody"><div class="tlt">'+e(q.text)+'</div><div class="tlm"><span style="background:'+c.bg+';color:'+c.tx+';padding:1px 7px;border-radius:8px">'+e(mn(q.mid))+'</span>'+(q.src?'<span>'+e(q.src)+'</span>':'')+'<span>'+ds(q.ts)+'</span>'+(q.note?'<span style="color:var(--tx2)">· '+e(q.note)+'</span>':'')+'</div></div><button class="hbtn'+(liked.has(q.id)?' lkd':'')+'" onclick="likeQ(\''+q.id+'\')" title="点赞">♥ '+(q.lk||0)+'</button></div>';}).join('');}).join('');
+}
+
+function renderBook(){
+  document.getElementById('bookTit').textContent=cfg.familyName;
+  var sorted=Q.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);});
+  document.getElementById('bookSub').textContent='共 '+sorted.length+' 句 · '+M.map(function(m){return m.name;}).join('、')+' 共同收录';
+  if(!sorted.length){document.getElementById('bookBody').innerHTML='<div class="empty" style="font-family:inherit">语录册等待第一句金句</div>';return;}
+  document.getElementById('bookBody').innerHTML=sorted.map(function(q,i){var c=mc(q.mid);return'<div style="padding:.85rem 0;border-bottom:1px solid var(--bd)"><div style="font-size:11px;font-family:inherit;color:var(--tx3);margin-bottom:5px">'+String(i+1).padStart(2,'0')+' · '+ds(q.ts)+' · <span style="background:'+c.bg+';color:'+c.tx+';padding:1px 7px;border-radius:8px;font-size:11px">'+e(mn(q.mid))+'</span></div><div>"'+e(q.text)+'"</div>'+(q.src?'<div style="font-size:12px;color:var(--tx2);font-family:inherit;margin-top:3px">—— '+e(q.src)+'</div>':'')+(q.note?'<div style="font-size:12px;color:var(--tx2);font-family:inherit;font-style:italic;margin-top:4px">· '+e(q.note)+'</div>':'')+'</div>';}).join('');
+}
+
+function renderMpicks(){
+  document.getElementById('mpicks').innerHTML=M.map(function(m){var c=CL[m.color]||CL.purple;var on=cur===m.id;return'<div class="mpick'+(on?' on':'')+'" onclick="setCur(\''+m.id+'\')" style="'+(on?'border-color:'+c.ib+';background:'+c.bg+';color:'+c.tx:'')+'">'+av(m.id,20)+' '+e(m.name)+'</div>';}).join('');
+}
+function setCur(id){cur=id;renderMpicks();}
+
+function renderMeList(){
+  document.getElementById('meList').innerHTML=M.map(function(m){var c=CL[m.color]||CL.purple;return'<div class="merow"><div style="width:30px;height:30px;border-radius:50%;background:'+c.ib+';color:'+c.it+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">'+e(m.name.slice(0,1))+'</div><span style="flex:1;font-size:14px">'+e(m.name)+'</span><span style="font-size:12px;color:var(--tx3)">'+Q.filter(function(q){return q.mid===m.id;}).length+' 句</span><button class="btn btn-sm bd-d" onclick="delM(\''+m.id+'\')">删除</button></div>';}).join('');
+}
+
+function qcard(q){var c=mc(q.mid);var lk=liked.has(q.id);return'<div class="qcard"><div class="qt">'+e(q.text)+'</div>'+(q.src?'<div class="qs">—— '+e(q.src)+'</div>':'')+'<div class="qft">'+av(q.mid,20)+'<span class="mbadge" style="background:'+c.bg+';color:'+c.tx+'">'+e(mn(q.mid))+'</span><span class="dlbl">'+ds(q.ts)+'</span><button class="hbtn'+(lk?' lkd':'')+'" onclick="likeQ(\''+q.id+'\')" title="点赞">♥ '+(q.lk||0)+'</button></div></div>';}
+
+function addQuote(){
+  var text=document.getElementById('addQ').value.trim();
+  if(!text){toast('请输入金句内容');return;}
+  if(!cur){toast('请选择是谁添加的');return;}
+  var src=document.getElementById('addSrc').value.trim();
+  var note=document.getElementById('addNote').value.trim();
+  Q.unshift({id:'q'+Date.now(),text:text,src:src,note:note,mid:cur,ts:Date.now(),lk:0});
+  save();
+  document.getElementById('addQ').value='';document.getElementById('addSrc').value='';document.getElementById('addNote').value='';
+  render();toast('已分享到家庭语录！');go('home');
+}
+
+function likeQ(id){
+  var q=Q.find(function(q){return q.id===id;});if(!q)return;
+  if(liked.has(id)){liked.delete(id);q.lk=Math.max(0,(q.lk||1)-1);}
+  else{liked.add(id);q.lk=(q.lk||0)+1;}
+  save();render();
+}
+
+function nextFeat(){if(!Q.length)return;fi=(fi+1)%Q.length;renderHome();}
+
+function copyFeat(){
+  if(!Q.length)return;
+  var q=Q[fi%Q.length];
+  var text='"'+q.text+'"'+(q.src?'\n—— '+q.src:'')+'\n—— '+mn(q.mid)+' 分享';
+  copyText(text,'已复制，可粘贴到微信群');
+}
+
+var lastWechatText='';
+function wechatFeat(){
+  if(!Q.length)return;
+  var q=Q[fi%Q.length];
+  var h=new Date().getHours();
+  var src=q.src?'\n—— '+q.src:'';
+  var txt=h<12
+    ?'🌅 早安｜家庭心流金句\n\n「'+q.text+'」'+src+'\n\n—— '+mn(q.mid)+' 分享'
+    :'🌙 晚安｜家庭心流金句\n\n「'+q.text+'」'+src+'\n\n—— '+mn(q.mid)+' 分享';
+  lastWechatText=txt;
+  var box=document.getElementById('wechatOut');
+  box.textContent=txt;box.style.display='block';
+  document.getElementById('copyWechatBtn').style.display='inline-flex';
+}
+function copyWechat(){copyText(lastWechatText,'微信文案已复制');}
+
+function addMember(){
+  var name=document.getElementById('newMN').value.trim();
+  if(!name){toast('请输入昵称');return;}
+  var color=document.getElementById('newMC').value;
+  M.push({id:'m'+Date.now(),name:name,color:color});
+  save();document.getElementById('newMN').value='';render();toast('成员已添加');
+}
+function delM(id){
+  if(Q.some(function(q){return q.mid===id;})){toast('该成员还有金句，无法删除');return;}
+  M=M.filter(function(m){return m.id!==id;});
+  if(cur===id)cur=M.length?M[0].id:null;
+  save();render();toast('已删除');
+}
+function saveFN(){
+  cfg.familyName=document.getElementById('fnInput').value.trim()||'我们家的心流语录';
+  save();render();toast('已保存');
+}
+function clearAll(){
+  if(!confirm('确认清空所有金句？此操作不可恢复。'))return;
+  Q=[];save();render();toast('已清空');
+}
+
+function exportBook(){
+  var sorted=Q.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);});
+  var lines=[cfg.familyName,'','共 '+sorted.length+' 句 · 导出于 '+new Date().toLocaleDateString('zh-CN'),'──────────────────────────────',''];
+  sorted.forEach(function(q,i){
+    lines.push(String(i+1).padStart(2,'0')+'. "'+q.text+'"');
+    if(q.src)lines.push('    —— '+q.src);
+    lines.push('    '+mn(q.mid)+' · '+ds(q.ts));
+    if(q.note)lines.push('    · '+q.note);
+    lines.push('');
+  });
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'}));
+  a.download=(cfg.familyName||'家庭心流语录')+'.txt';a.click();toast('语录册已导出');
+}
+function copyAll(){
+  var sorted=Q.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);});
+  copyText(sorted.map(function(q,i){return(i+1)+'. "'+q.text+'"'+(q.src?'\n   —— '+q.src:'')+'\n   '+mn(q.mid)+' · '+ds(q.ts);}).join('\n\n'),'已复制全部金句');
+}
+
+function copyText(txt,msg){
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){toast(msg||'已复制');});}
+  else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);toast(msg||'已复制');}
+}
+
+function go(id){
+  var tabs=document.querySelectorAll('.tab');
+  TABS.forEach(function(t,i){tabs[i].classList.toggle('on',t===id);});
+  TABS.forEach(function(t){var p=document.getElementById('p'+t);if(p)p.classList.toggle('on',t===id);});
+  if(id==='all')renderAll();
+  if(id==='tl')renderTL();
+  if(id==='book')renderBook();
+  if(id==='settings')renderMeList();
+}
+
+var tt;
+function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){el.classList.remove('show');},2200);}
+
+loadData();render();
+</script>
+</body>
+</html>
